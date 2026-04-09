@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazon Connect Copy</title>
+  <style>
+    :root {
+      --bg-page: #0a1929;
+      --bg-header: #0d2137;
+      --bg-card: #0d2137;
+      --bg-card-hover: #122a42;
+      --bg-input: #0a1929;
+      --bg-banner: #0c2d48;
+      --border: #1a3a5c;
+      --border-light: #1e4976;
+      --accent: #00bcd4;
+      --accent-dim: #0097a7;
+      --accent-glow: rgba(0, 188, 212, 0.15);
+      --text-primary: #e0e8f0;
+      --text-secondary: #8da4bf;
+      --text-muted: #5a7a99;
+      --text-bright: #ffffff;
+      --success: #2dd4a8;
+      --success-bg: rgba(45, 212, 168, 0.1);
+      --error: #f87171;
+      --error-bg: rgba(248, 113, 113, 0.1);
+      --info-bg: rgba(0, 188, 212, 0.08);
+      --shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Amazon Ember', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(180deg, #0d2137 0%, #0b1c2e 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .header h1 {
+      font-size: 17px;
+      font-weight: 400;
+      color: var(--text-bright);
+      letter-spacing: 0.3px;
+    }
+    .header h1 span { color: var(--accent); font-weight: 600; }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .header-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border: 1px solid var(--border-light);
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .header-badge svg { width: 16px; height: 16px; fill: var(--text-secondary); }
+    .header-icon {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .header-icon:hover { background: rgba(255,255,255,0.05); }
+    .header-icon svg { width: 18px; height: 18px; fill: currentColor; }
+
+    /* ── Banner ── */
+    .banner {
+      background: var(--bg-banner);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin: 20px 32px 0;
+      padding: 14px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .banner-icon {
+      width: 20px; height: 20px; flex-shrink: 0;
+      color: var(--accent);
+      margin-top: 1px;
+    }
+    .banner-icon svg { width: 20px; height: 20px; fill: currentColor; }
+    .banner strong { color: var(--text-primary); }
+    .banner a { color: var(--accent); text-decoration: none; }
+    .banner a:hover { text-decoration: underline; }
+    .banner-close {
+      margin-left: auto; cursor: pointer; color: var(--text-muted);
+      background: none; border: none; font-size: 18px; padding: 0 4px;
+      line-height: 1;
+    }
+    .banner-close:hover { color: var(--text-primary); }
+
+    /* ── Container ── */
+    .container { max-width: 1200px; margin: 24px auto; padding: 0 32px; }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; gap: 0; margin-bottom: 0; }
+    .tab {
+      padding: 12px 28px;
+      cursor: pointer;
+      background: transparent;
+      border: 1px solid transparent;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      font-weight: 400;
+      font-size: 14px;
+      color: var(--text-muted);
+      transition: all 0.2s;
+      letter-spacing: 0.2px;
+    }
+    .tab:hover { color: var(--text-secondary); }
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: rgba(0, 188, 212, 0.04);
+    }
+
+    /* ── Panels ── */
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 0 0 8px 8px;
+      padding: 28px;
+      display: none;
+      box-shadow: var(--shadow);
+    }
+    .panel.active { display: block; }
+
+    /* ── Forms ── */
+    .form-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.8px;
+    }
+    .form-group input {
+      padding: 9px 14px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 14px;
+      width: 220px;
+      background: var(--bg-input);
+      color: var(--text-primary);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .form-group input::placeholder { color: var(--text-muted); }
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+
+    /* ── Buttons ── */
+    button {
+      padding: 9px 22px;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.3px;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #0a1929;
+    }
+    .btn-primary:hover { background: #26c6da; }
+    .btn-primary:disabled { background: var(--text-muted); cursor: not-allowed; color: #0a1929; }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.04); border-color: var(--border-light); }
+    .btn-success {
+      background: var(--success);
+      color: #0a1929;
+    }
+    .btn-success:hover { background: #4ade80; }
+    .btn-danger {
+      background: #e74c3c;
+      color: #fff;
+    }
+    .btn-danger:hover { background: #c0392b; }
+
+    /* ── Component Grid ── */
+    .component-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .component-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: var(--bg-page);
+    }
+    .component-card:hover {
+      border-color: var(--border-light);
+      background: var(--bg-card-hover);
+    }
+    .component-card.selected {
+      border-color: var(--accent-dim);
+      background: var(--accent-glow);
+    }
+    .component-card input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    .component-card .info { flex: 1; }
+    .component-card .info .name {
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+    .component-card .info .count {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .component-icon { font-size: 22px; opacity: 0.8; }
+
+    /* ── Status ── */
+    .status {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      display: none;
+      line-height: 1.5;
+    }
+    .status.info {
+      display: block;
+      background: var(--info-bg);
+      border: 1px solid rgba(0,188,212,0.2);
+      color: var(--accent);
+    }
+    .status.success {
+      display: block;
+      background: var(--success-bg);
+      border: 1px solid rgba(45,212,168,0.2);
+      color: var(--success);
+    }
+    .status.error {
+      display: block;
+      background: var(--error-bg);
+      border: 1px solid rgba(248,113,113,0.2);
+      color: var(--error);
+    }
+
+    /* ── Spinner ── */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid #0a1929;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Results ── */
+    .results-list {
+      margin-top: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .results-list .item {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(26,58,92,0.5);
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .results-list .item.error-item { color: var(--error); }
+
+    /* ── Select All ── */
+    .select-all-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .select-all-row label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      letter-spacing: 0.3px;
+    }
+    .select-all-row input {
+      width: 16px; height: 16px;
+      accent-color: var(--accent);
+    }
+
+    /* ── Section Titles ── */
+    .section-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-top: 24px;
+      margin-bottom: 6px;
+      letter-spacing: 0.2px;
+    }
+    .help-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    /* ── Import Source ── */
+    .import-source {
+      margin: 16px 0;
+      padding: 0;
+    }
+    .drop-zone {
+      text-align: center;
+      padding: 32px;
+      cursor: pointer;
+      border: 1px dashed var(--border-light);
+      border-radius: 8px;
+      background: var(--bg-page);
+      transition: all 0.15s;
+      color: var(--text-muted);
+    }
+    .drop-zone:hover {
+      border-color: var(--accent-dim);
+      background: var(--accent-glow);
+    }
+    .drop-zone.dragover {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+    .drop-zone p { font-size: 13px; }
+
+    .loaded-badge {
+      display: inline-block;
+      padding: 5px 14px;
+      background: var(--success-bg);
+      border: 1px solid rgba(45,212,168,0.2);
+      color: var(--success);
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .action-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-page); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1><span>Amazon Connect</span> Copy</h1>
+    </div>
+    <div class="header-right">
+      <div class="header-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        v1.3.5
+      </div>
+      <div class="header-icon" title="Notifications">
+        <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Banner -->
+  <div class="banner" id="banner">
+    <div class="banner-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+    </div>
+    <div>
+      <strong>Welcome to Amazon Connect Copy UI.</strong>
+      Export components from a source instance, download them locally, then restore to a destination instance — all from this interface.
+      Ensure your <a href="https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html">AWS CLI profiles</a> are configured with the required Connect permissions.
+    </div>
+    <button class="banner-close" onclick="document.getElementById('banner').style.display='none'">✕</button>
+  </div>
+
+  <div class="container">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('export')">Export (Save)</div>
+      <div class="tab" onclick="switchTab('import')">Import (Restore)</div>
+    </div>
+
+    <!-- EXPORT PANEL -->
+    <div id="panel-export" class="panel active">
+      <div class="section-title" style="margin-top:0">Source Instance</div>
+      <div class="help-text">Connect to your source Amazon Connect instance to retrieve components.</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>AWS Profile</label>
+          <input type="text" id="src-profile" placeholder="default">
+        </div>
+        <div class="form-group">
+          <label>Region</label>
+          <select id="src-region" style="padding:9px 14px;border:1px solid var(--border);border-radius:4px;font-size:14px;width:220px;background:var(--bg-input);color:var(--text-primary);">
+            <option value="us-east-1" selected>US East (N. Virginia)</option>
+            <option value="us-west-2">US West (Oregon)</option>
+            <option value="ca-central-1">Canada (Central)</option>
+            <option value="eu-west-1">Europe (Ireland)</option>
+            <option value="eu-west-2">Europe (London)</option>
+            <option value="eu-central-1">Europe (Frankfurt)</option>
+            <option value="af-south-1">Africa (Cape Town)</option>
+            <option value="ap-southeast-1">Asia Pacific (Singapore)</option>
+            <option value="ap-southeast-2">Asia Pacific (Sydney)</option>
+            <option value="ap-northeast-1">Asia Pacific (Tokyo)</option>
+            <option value="ap-northeast-2">Asia Pacific (Seoul)</option>
+          </select>
+        </div>
+        <button class="btn-secondary" id="btn-list-src" onclick="listInstances('src')">List Instances</button>
+        <button class="btn-secondary" id="btn-scan-src" onclick="scanRegions('src')">Scan All Regions</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Instance</label>
+          <select id="src-alias" style="padding:9px 14px;border:1px solid var(--border);border-radius:4px;font-size:14px;width:320px;background:var(--bg-input);color:var(--text-primary);">
+            <option value="">— list instances first or type below —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Or enter alias / ID manually</label>
+          <input type="text" id="src-alias-manual" placeholder="alias or instance-id">
+        </div>
+        <button class="btn-primary" id="btn-fetch" onclick="fetchComponents()">Fetch Components</button>
+      </div>
+
+      <div id="export-status" class="status"></div>
+
+      <div id="export-components" style="display:none">
+        <div class="section-title">Select Components to Export</div>
+        <div class="help-text">Choose which components to save from the source instance.</div>
+        <div class="select-all-row">
+          <input type="checkbox" id="export-select-all" onchange="toggleAllExport(this.checked)">
+          <label for="export-select-all">Select All</label>
+        </div>
+        <div class="component-grid" id="export-grid"></div>
+        <div class="action-bar">
+          <button class="btn-success" id="btn-download" onclick="downloadExport()">⬇ Download as JSON</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMPORT PANEL -->
+    <div id="panel-import" class="panel">
+      <div class="section-title" style="margin-top:0">Step 1 — Load Export Data</div>
+      <div class="help-text">Upload a previously exported JSON file.</div>
+      <div class="import-source">
+        <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+          <p>Click to select or drag &amp; drop your export JSON file here</p>
+          <input type="file" id="file-input" accept=".json" style="display:none" onchange="handleFileUpload(event)">
+        </div>
+        <div id="import-loaded" style="display:none; margin-top:12px;">
+          <span class="loaded-badge" id="loaded-badge"></span>
+          <button class="btn-secondary" style="margin-left:8px" onclick="clearImport()">Clear</button>
+        </div>
+      </div>
+
+      <div id="import-config" style="display:none">
+        <div class="section-title">Step 2 — Destination Instance</div>
+        <div class="help-text">Enter the target Amazon Connect instance details.</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>AWS Profile</label>
+            <input type="text" id="dst-profile" placeholder="default">
+          </div>
+          <div class="form-group">
+            <label>Region</label>
+            <select id="dst-region" style="padding:9px 14px;border:1px solid var(--border);border-radius:4px;font-size:14px;width:220px;background:var(--bg-input);color:var(--text-primary);">
+              <option value="us-east-1" selected>US East (N. Virginia)</option>
+              <option value="us-west-2">US West (Oregon)</option>
+              <option value="ca-central-1">Canada (Central)</option>
+              <option value="eu-west-1">Europe (Ireland)</option>
+              <option value="eu-west-2">Europe (London)</option>
+              <option value="eu-central-1">Europe (Frankfurt)</option>
+              <option value="af-south-1">Africa (Cape Town)</option>
+              <option value="ap-southeast-1">Asia Pacific (Singapore)</option>
+              <option value="ap-southeast-2">Asia Pacific (Sydney)</option>
+              <option value="ap-northeast-1">Asia Pacific (Tokyo)</option>
+              <option value="ap-northeast-2">Asia Pacific (Seoul)</option>
+            </select>
+          </div>
+          <button class="btn-secondary" id="btn-list-dst" onclick="listInstances('dst')">List Instances</button>
+          <button class="btn-secondary" id="btn-scan-dst" onclick="scanRegions('dst')">Scan All Regions</button>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Instance</label>
+            <select id="dst-alias" style="padding:9px 14px;border:1px solid var(--border);border-radius:4px;font-size:14px;width:320px;background:var(--bg-input);color:var(--text-primary);">
+              <option value="">— list instances first or type below —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Or enter alias / ID manually</label>
+            <input type="text" id="dst-alias-manual" placeholder="alias or instance-id">
+          </div>
+        </div>
+
+        <div class="section-title">Step 3 — Select Components to Restore</div>
+        <div class="select-all-row">
+          <input type="checkbox" id="import-select-all" onchange="toggleAllImport(this.checked)">
+          <label for="import-select-all">Select All</label>
+        </div>
+        <div class="component-grid" id="import-grid"></div>
+
+        <div class="action-bar">
+          <button class="btn-danger" id="btn-restore" onclick="restoreComponents()">⚡ Restore to Destination</button>
+        </div>
+      </div>
+
+      <div id="import-status" class="status"></div>
+      <div id="import-results" class="results-list"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

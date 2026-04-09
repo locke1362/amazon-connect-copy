@@ -1,0 +1,31 @@
+{
+  "name": "amazon-connect-copy-ui",
+  "version": "1.0.0",
+  "description": "Web UI for Amazon Connect Copy — export and restore Connect instance components through a browser interface.",
+  "main": "ui/server.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "start": "node ui/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aws-samples/amazon-connect-copy.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/aws-samples/amazon-connect-copy/issues"
+  },
+  "homepage": "https://github.com/aws-samples/amazon-connect-copy#readme",
+  "dependencies": {
+    "@aws-sdk/client-connect": "^3.1027.0",
+    "@aws-sdk/credential-providers": "^3.1027.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  }
+}
